@@ -1,0 +1,7 @@
+export const kinds={TaskPersona:'Личность',TaskTeam:'Команда',TaskCapability:'Навык',TaskSupervisor:'Координация',TaskReviewer:'Проверка',TaskService:'Служба',TaskPriority:'Приоритет',ThinkingProfile:'Мышление',TaskProgressPolicy:'Прогресс',CodexTask:'Задача',EvolutionRoot:'Развитие ИИ',ImprovementArea:'Направление',LearnedLesson:'Урок',LessonEvaluation:'Проверка урока',ReusableSkill:'Подтверждённый навык',LearningMechanism:'Механизм',AIPersona:'Наставник',EgorCompetency:'Компетенция',CompetencyPlan:'План развития',CompetencyEvaluation:'Оценка'};
+export function hash(s){let h=2166136261;for(const c of s){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+export function position(id){const a=hash(id)/4294967296*Math.PI*2,r=Math.sqrt(hash(id+'r')/4294967296)*.88;return [765+Math.cos(a)*560*r,425+Math.sin(a)*340*r]}
+export function active(e){return !e.invalidAt}
+export function color(n){return n.kind==='TaskPersona'?'#67e4ff':n.kind==='TaskTeam'?'#b69bff':n.kind==='TaskCapability'?'#63e7b6':'#ffcd84'}
+export function matches(n,q){return [n.name,n.role,n.project,n.team,...(n.capabilities||[])].join(' ').toLocaleLowerCase('ru').includes(q.toLocaleLowerCase('ru'))}
+export function delta(a,b){if(!a||a.scope!==b.scope)return null;const oldN=new Set(a.nodes.map(x=>x.id)),oldE=new Set(a.edges.map(x=>x.id));return {nodes:b.nodes.filter(x=>!oldN.has(x.id)).length,edges:b.edges.filter(x=>!oldE.has(x.id)).length,removedNodes:a.nodes.filter(x=>!b.nodes.some(n=>n.id===x.id)).length,removedEdges:a.edges.filter(x=>!b.edges.some(e=>e.id===x.id)).length}}

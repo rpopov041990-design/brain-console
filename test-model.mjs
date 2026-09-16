@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {position,delta,active} from './src/model.js';
+const before={scope:'pinned',nodes:[{id:'a'}],edges:[]};
+const after={scope:'pinned',nodes:[{id:'a'},{id:'b'}],edges:[{id:'ab'}]};
+const fixed=position('a');
+position('b');
+assert.deepEqual(position('a'),fixed);
+assert.deepEqual(delta(before,after),{nodes:1,edges:1,removedNodes:0,removedEdges:0});
+assert.equal(delta(before,{...after,scope:'global'}),null);
+assert.equal(active({invalidAt:'2026-01-01'}),false);
+console.log('PASS: stable positions, source growth, scope separation, historical edges');
