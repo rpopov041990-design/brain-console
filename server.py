@@ -117,8 +117,8 @@ def snapshot(driver,scope):
         cached=CACHE.get(scope)
         if cached and time.monotonic()-cached[0]<5:
             return cached[1]
-        reg=json.loads(REGISTRY.read_text())
-        pins=json.loads(PINS.read_text()).get('pinned-thread-ids',[]) if PINS else []
+        reg=json.loads(REGISTRY.read_text(encoding='utf-8'))
+        pins=json.loads(PINS.read_text(encoding='utf-8')).get('pinned-thread-ids',[]) if PINS else []
         graph_ok=True
         try: graph=graph_rows(driver,scope)
         except Exception:
@@ -205,7 +205,11 @@ class Handler(BaseHTTPRequestHandler):
             root=(HERE/'dist').resolve(); target=(root/rel).resolve()
             if not target.is_relative_to(root) or not target.is_file():
                 return self.reply(404,{'error':'Файл не найден'})
-            return self.reply(200,target.read_bytes(),mimetypes.guess_type(str(target))[0] or 'application/octet-stream')
+            # Windows file associations may label .js as text/plain. Modules and
+            # nosniff require a stable MIME type independent of registry settings.
+            web_types={'.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8'}
+            ctype=web_types.get(target.suffix.lower()) or mimetypes.guess_type(str(target))[0] or 'application/octet-stream'
+            return self.reply(200,target.read_bytes(),ctype)
         except (ValueError,TypeError):
             return self.reply(400,{'error':'Некорректные параметры'})
         except Exception:

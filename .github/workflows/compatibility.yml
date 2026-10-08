@@ -1,0 +1,32 @@
+name: Compatibility
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Platform evidence
+        run: python -c "import platform; print(platform.system(), platform.machine(), platform.python_version())"
+      - run: npm ci --ignore-scripts
+      - run: node test-model.mjs
+      - run: node test-volume.mjs
+      - run: npm run build
+      - run: python -m unittest discover -v
